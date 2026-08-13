@@ -1,0 +1,9 @@
+**/__pycache__/
+**/*.py[cod]
+.git/
+tests/
+datasets/
+runtime/
+data.db*
+app.env*
+.env-changed

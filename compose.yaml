@@ -1,0 +1,60 @@
+services:
+  app:
+    build:
+      context: .
+    image: king-of-meal-prep:local
+    restart: unless-stopped
+    init: true
+    user: "1000:1000"
+    read_only: true
+    env_file:
+      - ./runtime/app.env
+    environment:
+      APP_ENV_PATH: /data/runtime/app.env
+      ENV_MARKER_PATH: /data/runtime/.env-changed
+      DB_PATH: /data/runtime/data.db
+      DB_BACKUP_DIR: /data/runtime/backups
+      NUTRITION_DB: /data/datasets/nutrition.db
+    ports:
+      - "${KING_BIND_ADDRESS:-127.0.0.1}:${KING_PORT:-5002}:5002"
+    volumes:
+      - ./runtime:/data/runtime:rw
+      - ./datasets:/data/datasets:ro
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=128m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 1536m
+    cpus: 2.0
+    pids_limit: 128
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5002/health', timeout=3).read()"
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+
+  nutrition:
+    build:
+      context: .
+    image: king-of-meal-prep:local
+    user: "1000:1000"
+    profiles:
+      - tools
+    environment:
+      KING_DATASETS: /data/datasets
+      NUTRITION_DB: /data/datasets/nutrition.db
+    volumes:
+      - ./datasets:/data/datasets:rw
+    command:
+      - python
+      - -m
+      - nutrition.bootstrap
+      - --phase
+      - usda

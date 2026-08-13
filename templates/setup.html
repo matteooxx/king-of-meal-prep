@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Setup — KING</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preload" href="/static/fonts/ibm-plex-sans-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/static/fonts/jetbrains-mono-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+<div class="wizard">
+  <div class="wizard-progress" aria-hidden="true">
+    <div class="wizard-progress-fill" id="wizProgress" style="width:0%"></div>
+  </div>
+  <div class="wizard-step-label">
+    <span>STEP <span class="num" id="wizStepNum">1</span> / 9</span>
+    <span id="wizStepName">WELCOME</span>
+  </div>
+
+  <!-- 1. WELCOME -->
+  <section class="wizard-step active" data-step="1" data-name="WELCOME">
+    <h1 class="wizard-title">The King of Meal Prep</h1>
+    <p class="wizard-help">Nine short steps. Most fields have sensible defaults — accept them now, tune later in Settings. Required fields are marked. The whole wizard takes about ten minutes.</p>
+    <p class="wizard-help">Your data stays on this NAS. The optional Gemini API key is only used for translations and recipe parsing — never with your meal log, pantry, or body stats.</p>
+  </section>
+
+  <!-- 2. BODY -->
+  <section class="wizard-step" data-step="2" data-name="BODY">
+    <p class="eyebrow">Required</p>
+    <h1 class="wizard-title">Your body</h1>
+    <p class="wizard-help">We compute your daily targets via Mifflin-St Jeor. You'll see them on the next step.</p>
+    <div class="field"><label for="weight_kg">Weight (kg)</label><input type="number" id="weight_kg" step="0.1" min="30" max="250"></div>
+    <div class="field"><label for="height_cm">Height (cm)</label><input type="number" id="height_cm" step="1" min="120" max="230"></div>
+    <div class="field"><label for="age_years">Age (years)</label><input type="number" id="age_years" step="1" min="13" max="100"></div>
+    <div class="field">
+      <span class="field-label" id="sexLabel">Sex</span>
+      <div class="radio-row" data-bind="sex" role="radiogroup" aria-labelledby="sexLabel">
+        <label><input type="radio" name="sex" value="m"><span>Male</span></label>
+        <label><input type="radio" name="sex" value="f"><span>Female</span></label>
+      </div>
+    </div>
+    <div class="field">
+      <span class="field-label" id="activityLabel">Activity level</span>
+      <div class="radio-row" data-bind="activity_level" role="radiogroup" aria-labelledby="activityLabel">
+        <label><input type="radio" name="activity_level" value="sedentary"><span>Sedentary</span></label>
+        <label><input type="radio" name="activity_level" value="light"><span>Light</span></label>
+        <label><input type="radio" name="activity_level" value="moderate"><span>Moderate</span></label>
+        <label><input type="radio" name="activity_level" value="active"><span>Active</span></label>
+        <label><input type="radio" name="activity_level" value="very_active"><span>V.Active</span></label>
+      </div>
+      <p class="hint">Sedentary = desk job, no training. Moderate = 3–5 sessions/week.</p>
+    </div>
+    <div class="field">
+      <span class="field-label" id="goalLabel">Goal</span>
+      <div class="radio-row" data-bind="goal" role="radiogroup" aria-labelledby="goalLabel">
+        <label><input type="radio" name="goal" value="cut"><span>Cut</span></label>
+        <label><input type="radio" name="goal" value="maintain"><span>Maintain</span></label>
+        <label><input type="radio" name="goal" value="bulk"><span>Bulk</span></label>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. EQUIPMENT -->
+  <section class="wizard-step" data-step="3" data-name="EQUIPMENT">
+    <p class="eyebrow">Required</p>
+    <h1 class="wizard-title">Your kitchen</h1>
+    <p class="wizard-help">Tap what you have. The planner skips recipes that need anything you don't.</p>
+
+    <p class="eyebrow" style="margin-top:1.5rem">Cooking surfaces</p>
+    <div class="equip-grid" data-equip-group="surfaces"></div>
+
+    <p class="eyebrow" style="margin-top:1.5rem">Modern appliances</p>
+    <div class="equip-grid" data-equip-group="appliances"></div>
+
+    <p class="eyebrow" style="margin-top:1.5rem">Small electrics</p>
+    <div class="equip-grid" data-equip-group="electrics"></div>
+
+    <p class="eyebrow" style="margin-top:1.5rem">Specialty</p>
+    <div class="equip-grid" data-equip-group="specialty"></div>
+
+    <details class="equip-custom" style="margin-top:1.5rem">
+      <summary>Add a custom item</summary>
+      <div class="tag-input" id="equipmentTags" style="margin-top:.5rem"></div>
+      <p class="hint">For anything not in the catalog above. Press Enter to add.</p>
+    </details>
+  </section>
+
+  <!-- 4. ALLERGIES + DISLIKES -->
+  <section class="wizard-step" data-step="4" data-name="WHAT YOU AVOID">
+    <h1 class="wizard-title">Allergies + dislikes</h1>
+    <p class="wizard-help">Recipes that mention any of these will be excluded from suggestions. You can edit later.</p>
+    <div class="field">
+      <label for="allergiesTagsInput">Allergies</label>
+      <div class="tag-input" id="allergiesTags"></div>
+    </div>
+    <div class="field">
+      <label for="dislikesTagsInput">Dislikes</label>
+      <div class="tag-input" id="dislikesTags"></div>
+      <p class="hint">e.g. mushrooms, celery, blue cheese</p>
+    </div>
+  </section>
+
+  <!-- 5. MEAL TIMING (was step 6; FAVORITES removed — informational only) -->
+  <section class="wizard-step" data-step="5" data-name="MEAL TIMING">
+    <h1 class="wizard-title">Meal timing</h1>
+    <p class="wizard-help">How many of your daily calories go into each meal, and how long you can cook on each day. Defaults are reasonable.</p>
+    <p class="eyebrow" style="margin-top:1rem">Slot kcal split (must add to 100%)</p>
+    <div class="field"><label for="kcal_breakfast">Breakfast %</label><input type="number" id="kcal_breakfast" min="0" max="100" step="5"></div>
+    <div class="field"><label for="kcal_lunch">Lunch %</label>    <input type="number" id="kcal_lunch"     min="0" max="100" step="5"></div>
+    <div class="field"><label for="kcal_dinner">Dinner %</label>   <input type="number" id="kcal_dinner"    min="0" max="100" step="5"></div>
+    <div class="field"><label for="kcal_snack">Snack %</label>    <input type="number" id="kcal_snack"     min="0" max="100" step="5"></div>
+    <p class="eyebrow" style="margin-top:1rem">Cook-time budget per day (minutes)</p>
+    <div class="field"><label for="ct_mon">Mon</label><input type="number" id="ct_mon" min="5" max="240" step="5"></div>
+    <div class="field"><label for="ct_tue">Tue</label><input type="number" id="ct_tue" min="5" max="240" step="5"></div>
+    <div class="field"><label for="ct_wed">Wed</label><input type="number" id="ct_wed" min="5" max="240" step="5"></div>
+    <div class="field"><label for="ct_thu">Thu</label><input type="number" id="ct_thu" min="5" max="240" step="5"></div>
+    <div class="field"><label for="ct_fri">Fri</label><input type="number" id="ct_fri" min="5" max="240" step="5"></div>
+    <div class="field"><label for="ct_sat">Sat</label><input type="number" id="ct_sat" min="5" max="240" step="5"></div>
+    <div class="field"><label for="ct_sun">Sun</label><input type="number" id="ct_sun" min="5" max="240" step="5"></div>
+    <div class="field"><label for="default_servings">Default servings</label><input type="number" id="default_servings" min="0.1" max="50" step="0.5"></div>
+  </section>
+
+  <!-- 6. ROTATION -->
+  <section class="wizard-step" data-step="6" data-name="ROTATION">
+    <h1 class="wizard-title">Repetition</h1>
+    <p class="wizard-help">No-repeat window: how many days before a recipe can come back to your plan.</p>
+    <div class="field"><label for="rotation_window_days">Window (days)</label><input type="number" id="rotation_window_days" min="1" max="60" step="1"></div>
+    <div class="field">
+      <span class="field-label" id="favoritesBypassLabel">Favorites bypass</span>
+      <div class="radio-row" data-bind="favorites_bypass_mode" role="radiogroup" aria-labelledby="favoritesBypassLabel">
+        <label><input type="radio" name="favorites_bypass_mode" value="always"><span>Always</span></label>
+        <label><input type="radio" name="favorites_bypass_mode" value="max_once_per_week"><span>Max 1×/wk</span></label>
+        <label><input type="radio" name="favorites_bypass_mode" value="off"><span>Off</span></label>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. TRANSLATIONS -->
+  <section class="wizard-step" data-step="7" data-name="TRANSLATIONS">
+    <h1 class="wizard-title">Italian translation</h1>
+    <p class="wizard-help">English UI throughout, with Italian for ingredient names. Pick how you want to see them.</p>
+    <div class="field">
+      <div class="radio-row" data-bind="translation_mode" role="radiogroup" aria-label="Italian translation display">
+        <label><input type="radio" name="translation_mode" value="hover"><span>On hover</span></label>
+        <label><input type="radio" name="translation_mode" value="side_by_side"><span>Side by side</span></label>
+        <label><input type="radio" name="translation_mode" value="italian_only"><span>Italian only</span></label>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. SMTP -->
+  <section class="wizard-step" data-step="8" data-name="EMAIL (OPTIONAL)">
+    <h1 class="wizard-title">Email</h1>
+    <p class="wizard-help">Used for the weekly digest and password reset. Skip if you don't want either — you can wire it up later.</p>
+    <div class="field"><label for="SMTP_HOST">SMTP host</label><input type="text" id="SMTP_HOST" value="smtp.gmail.com"></div>
+    <div class="field"><label for="SMTP_PORT">SMTP port</label><input type="number" id="SMTP_PORT" value="587"></div>
+    <div class="field"><label for="SMTP_USER">SMTP user</label><input type="text" id="SMTP_USER"></div>
+    <div class="field"><label for="SMTP_PASS">SMTP password (app password)</label><input type="password" id="SMTP_PASS"></div>
+    <div class="field"><label for="SMTP_FROM">From</label><input type="text" id="SMTP_FROM"></div>
+    <div class="field"><label for="OWNER_EMAIL">Recipient (you)</label><input type="email" id="OWNER_EMAIL"></div>
+  </section>
+
+  <!-- 9. REVIEW (Gemini key folded in here as an optional card; was a
+       standalone single-field step that read as ceremony). -->
+  <section class="wizard-step" data-step="9" data-name="REVIEW">
+    <h1 class="wizard-title">Review + finish</h1>
+    <p class="wizard-help">Quick summary. Anything wrong? Use Back. All of this is editable in Settings.</p>
+    <div id="reviewSummary" class="review-summary"></div>
+
+    <div class="optional-card" style="margin-top: var(--sp-5);">
+      <p class="section-eyebrow">Optional · Gemini API key</p>
+      <hr class="hr-dotted">
+      <p class="hint" style="margin-top: var(--sp-2);">Used only for: translations, parsing messy recipe pastes, and on-demand recipe generation. The app works without it — paste later in Settings if you prefer.</p>
+      <div class="field"><label for="GEMINI_API_KEY">Gemini API key</label><input type="password" id="GEMINI_API_KEY" placeholder="AIza…"></div>
+      <div class="page-head-actions" style="margin: var(--sp-2) 0;">
+        <button class="btn" id="testGeminiBtn" type="button">Test key</button>
+        <span class="result" id="testGeminiResult"></span>
+      </div>
+      <p class="hint">Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">aistudio.google.com/apikey</a>. Privacy: we never send your pantry, meal log, or body stats to Gemini.</p>
+    </div>
+  </section>
+
+  <div class="wizard-actions">
+    <button class="btn btn-ghost" id="wizBack" type="button">Back</button>
+    <button class="btn"        id="wizDefaults" type="button">Use defaults</button>
+    <span class="spacer"></span>
+    <button class="btn btn-primary" id="wizNext" type="button">Next</button>
+  </div>
+
+  <div class="result" id="wizResult"></div>
+</div>
+
+<div class="toast-region" id="toastRegion" aria-live="polite"></div>
+<!-- app.js MUST load before wizard.js — wizard depends on king.toast / king.fetchJSON.
+     Without this, the DOMContentLoaded handler in wizard.js throws on the first
+     `king.fetchJSON("/api/settings")` call and no buttons get their listeners
+     wired, leaving Back / Use defaults / Next dead. -->
+<script src="/static/js/app.js"></script>
+<script src="/static/js/wizard.js"></script>
+</body>
+</html>

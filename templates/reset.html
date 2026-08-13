@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The King of Meal Prep — Reset password</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preload" href="/static/fonts/ibm-plex-sans-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body class="auth-page">
+<main class="auth-card" role="main">
+  <div class="auth-mark">KING</div>
+  <h1 class="auth-title">Reset password</h1>
+  <p class="auth-subtitle">Set a new admin password.</p>
+
+  <div class="auth-error" id="resetError" role="alert"></div>
+  <div class="auth-info"  id="resetInfo"  role="status"></div>
+
+  <div class="auth-field">
+    <label class="auth-label" for="newPass">New password</label>
+    <input class="auth-input" type="password" id="newPass" autocomplete="new-password" autofocus>
+  </div>
+  <div class="auth-field">
+    <label class="auth-label" for="confirmPass">Confirm</label>
+    <input class="auth-input" type="password" id="confirmPass" autocomplete="new-password">
+  </div>
+  <button class="auth-btn" id="resetBtn" type="button" onclick="doReset()">Reset password</button>
+  <footer class="auth-footer">The link is single-use and expires.</footer>
+</main>
+<script>
+function tok() { return new URLSearchParams(window.location.search).get("token") || ""; }
+document.addEventListener("keydown", e => { if (e.key === "Enter") doReset(); });
+if (!tok()) {
+  const e = document.getElementById("resetError");
+  e.textContent = "Missing token.";
+  e.classList.add("visible");
+  document.getElementById("resetBtn").disabled = true;
+}
+function doReset() {
+  const t = tok();
+  const p1 = document.getElementById("newPass").value;
+  const p2 = document.getElementById("confirmPass").value;
+  const btn = document.getElementById("resetBtn");
+  const err = document.getElementById("resetError");
+  const info = document.getElementById("resetInfo");
+  err.classList.remove("visible"); info.classList.remove("visible");
+  if (!p1 || !p2) { err.textContent = "Fill in both fields."; err.classList.add("visible"); return; }
+  if (p1 !== p2)  { err.textContent = "Passwords don't match.";  err.classList.add("visible"); return; }
+  if (p1.length < 8) { err.textContent = "At least 8 characters."; err.classList.add("visible"); return; }
+  btn.disabled = true; btn.innerHTML = '<span class="auth-spinner"></span>Resetting';
+  fetch("/api/reset-password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token: t, new: p1 }),
+  }).then(r => r.json()).then(d => {
+    if (d.ok) {
+      info.textContent = "Password reset. Redirecting…";
+      info.classList.add("visible");
+      setTimeout(() => { window.location.href = "/"; }, 1800);
+    } else {
+      err.textContent = d.error || "Error.";
+      err.classList.add("visible");
+      btn.disabled = false; btn.textContent = "Reset password";
+    }
+  }).catch(() => {
+    err.textContent = "Connection error.";
+    err.classList.add("visible");
+    btn.disabled = false; btn.textContent = "Reset password";
+  });
+}
+</script>
+</body>
+</html>

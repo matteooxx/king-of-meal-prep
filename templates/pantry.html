@@ -1,0 +1,105 @@
+{% extends "_shell.html" %}
+{% set active = "pantry" %}
+{% block title %}Pantry — KING{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-title">Pantry</h1>
+    <p class="page-sub" id="pantryCount">Loading…</p>
+  </div>
+  <div class="page-head-actions desktop-only">
+    <a class="btn btn-ghost" href="/scan"><i data-lucide="scan-barcode"></i>Scan</a>
+    <button class="btn btn-primary" id="addPantryBtn"><i data-lucide="plus"></i>Add item</button>
+  </div>
+</header>
+
+{# Mobile-first FAB: thumb-reachable bottom-right, opens the same modal as
+   the desktop top-header "+ Add". Specced in design.md ("Pantry layout"
+   section, line 686-687) but never built until now. #}
+<button class="fab mobile-only" id="addPantryFab" type="button" aria-label="Add to pantry"><i data-lucide="plus"></i></button>
+
+<section class="prepared-section" id="prepared">
+  <div class="section-head">
+    <div>
+      <p class="section-eyebrow">Prepared portions</p>
+      <p class="section-summary" id="preparedCount">Loading...</p>
+    </div>
+    <i data-lucide="package-check" aria-hidden="true"></i>
+  </div>
+  <div id="preparedRoot"><p class="dim">Loading...</p></div>
+</section>
+
+<div class="subsection-head">
+  <p class="section-eyebrow">Pantry ingredients</p>
+</div>
+
+<div id="pantryRoot"><p class="dim">Loading…</p></div>
+
+<div class="modal" id="pantryModal" hidden role="dialog" aria-modal="true" aria-labelledby="pantryModalTitle">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="pantryModalTitle">Add to pantry</h2>
+      <button class="icon-btn modal-x" id="pantryCloseBtn" type="button" aria-label="Close"><i data-lucide="x"></i></button>
+    </div>
+    <div class="field">
+      <label for="pantryRaw">Quick add (paste a line)</label>
+      <input type="text" id="pantryRaw" placeholder='e.g. "500 g chicken breast" or "2 onions"'>
+      <p class="hint">We'll parse name + quantity + unit. You can override below.</p>
+    </div>
+    <div class="field"><label for="pantryName">Name</label><input type="text" id="pantryName"></div>
+    <div class="field-row pantry-item-fields">
+      <div class="field"><label for="pantryQty">Qty</label><input type="number" id="pantryQty" step="any"></div>
+      <div class="field"><label for="pantryUnit">Unit</label>
+        <select id="pantryUnit">
+          <option>g</option><option>kg</option><option>ml</option><option>l</option>
+          <option>piece</option><option>pieces</option><option>tbsp</option><option>tsp</option><option>cup</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="pantryPortions">Split into</label>
+        <input type="number" id="pantryPortions" min="0.01" max="1000" step="any"
+               placeholder="Not split">
+        <p class="hint" id="pantryPortionHint"></p>
+      </div>
+      <div class="field"><label for="pantryExp">Expires (optional)</label><input type="date" id="pantryExp"></div>
+    </div>
+    <p class="hint" id="pantryAutoExp"></p>
+    <div style="display:flex; justify-content: space-between; margin-top: var(--sp-4);">
+      <button class="btn btn-ghost" id="pantryCancel" type="button">Cancel</button>
+      <button class="btn btn-primary" id="pantrySave" type="button">Save</button>
+    </div>
+    <div class="result" id="pantryResult"></div>
+  </div>
+</div>
+
+<div class="modal" id="preparedModal" hidden role="dialog" aria-modal="true" aria-labelledby="preparedModalTitle">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="preparedModalTitle">Edit prepared portions</h2>
+      <button class="icon-btn modal-x" id="preparedCloseBtn" type="button" aria-label="Close"><i data-lucide="x"></i></button>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="preparedQty">Portions remaining</label>
+        <input id="preparedQty" type="number" min="0" max="1000" step="0.5">
+      </div>
+      <div class="field">
+        <label for="preparedExpiry">Use by</label>
+        <input id="preparedExpiry" type="date">
+      </div>
+    </div>
+    <label class="toggle-row">
+      <span><strong>Stored frozen</strong><small>Updates the suggested use-by date.</small></span>
+      <input id="preparedFrozen" type="checkbox">
+    </label>
+    <div class="result" id="preparedResult"></div>
+    <div class="modal-actions split-actions">
+      <button class="btn btn-danger" id="preparedDiscard" type="button"><i data-lucide="trash-2"></i>Discard</button>
+      <span class="action-spacer"></span>
+      <button class="btn btn-ghost" id="preparedCancel" type="button">Cancel</button>
+      <button class="btn btn-primary" id="preparedSave" type="button">Save</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/pantry.js"></script>{% endblock %}

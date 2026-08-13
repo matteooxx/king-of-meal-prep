@@ -1,0 +1,44 @@
+{% extends "_shell.html" %}
+{% set active = "settings" %}
+{% block title %}Settings — KING{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-title">Settings</h1>
+    <p class="page-sub">Tune anything. Sections marked <span class="default-chip">default</span> haven't been customized yet.</p>
+  </div>
+  <button class="btn" id="openAllBtn" type="button">Open all</button>
+</header>
+
+<div class="settings-list" id="settingsList">
+  {% for sec in [
+    {"id":"profile",   "label":"Body & Goals"},
+    {"id":"equipment", "label":"Equipment"},
+    {"id":"avoid",     "label":"Allergies & Dislikes"},
+    {"id":"favorites", "label":"Favorites"},
+    {"id":"timing",    "label":"Meal Timing"},
+    {"id":"rotation",  "label":"Rotation"},
+    {"id":"shopping",  "label":"Shopping"},
+    {"id":"scanning",  "label":"Scanning"},
+    {"id":"translations","label":"Translations"},
+    {"id":"data",      "label":"Data & Backup"},
+    {"id":"security",  "label":"Security & Access"},
+    {"id":"secrets",   "label":"Secrets"},
+    {"id":"llm",       "label":"LLM Budget"}
+  ] %}
+  <div class="settings-section" data-section="{{ sec.id }}">
+    <button class="settings-section-head" type="button" aria-expanded="false">
+      <span class="label">{{ sec.label }}</span>
+      <span class="meta">
+        <span class="default-chip" hidden>default</span>
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+      </span>
+    </button>
+    <div class="settings-body" data-section-body="{{ sec.id }}">
+      <p class="dim" style="font-size: var(--fs-sm);">Loading…</p>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/settings.js"></script>{% endblock %}

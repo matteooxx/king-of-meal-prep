@@ -1,0 +1,43 @@
+stages:
+  - test
+  - container
+
+default:
+  interruptible: true
+
+test:
+  stage: test
+  image: python:3.12-slim
+  cache:
+    key: pip
+    paths:
+      - .cache/pip/
+  variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  before_script:
+    - python -m pip install --upgrade pip
+    - python -m pip install -r requirements.txt
+    - python -m pip install pip-audit
+  script:
+    - python -m unittest discover -s tests -v
+    - python scripts/smoke-api.py
+    - python -m pip_audit -r requirements.txt --progress-spinner off
+
+javascript:
+  stage: test
+  image: node:22-alpine
+  script:
+    - find static/js -type f -name '*.js' ! -path '*/vendor/*' -exec node --check {} +
+
+container:
+  stage: container
+  image: docker:27-cli
+  services:
+    - name: docker:27-dind
+      command:
+        - --tls=false
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    - docker build --tag king-of-meal-prep:ci .

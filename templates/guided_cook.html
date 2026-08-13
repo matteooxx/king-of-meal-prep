@@ -1,0 +1,99 @@
+{% extends "_shell.html" %}
+{% set active = "recipes" %}
+{% block title %}Cook - KING{% endblock %}
+{% block body_class %}guided-cook-page{% endblock %}
+{% block content %}
+<div class="guided-cook" id="guidedCookRoot" data-rid="{{ rid }}">
+  <header class="guided-cook-head">
+    <a class="icon-btn" id="guidedExit" href="/recipes/{{ rid }}"
+       aria-label="Leave cooking mode" title="Leave cooking mode">
+      <i data-lucide="x"></i>
+    </a>
+    <div class="guided-cook-title">
+      <p class="section-eyebrow" id="guidedContext">Guided cooking</p>
+      <h1 id="guidedRecipeName">Loading...</h1>
+    </div>
+    <button class="btn guided-wake" id="wakeLockBtn" type="button"
+            aria-pressed="false" title="Keep screen awake">
+      <i data-lucide="sun"></i>
+      <span>Screen awake</span>
+    </button>
+  </header>
+
+  <div class="guided-progress" aria-hidden="true">
+    <span id="guidedProgressBar"></span>
+  </div>
+
+  <div class="result err guided-error" id="guidedError" hidden></div>
+
+  <div class="guided-cook-layout" id="guidedCookLayout" hidden>
+    <details class="guided-ingredients" id="guidedIngredients" open>
+      <summary>
+        <span>Ingredients</span>
+        <span class="dim num" id="ingredientProgress"></span>
+      </summary>
+      <div class="guided-batch-control">
+        <strong>Batch portions</strong>
+        <div class="stepper" role="group" aria-label="Batch portions">
+          <button class="icon-btn" id="batchMinus" type="button"
+                  aria-label="Decrease portions" title="Decrease portions">
+            <i data-lucide="minus"></i>
+          </button>
+          <output class="num" id="batchPortions">1</output>
+          <button class="icon-btn" id="batchPlus" type="button"
+                  aria-label="Increase portions" title="Increase portions">
+            <i data-lucide="plus"></i>
+          </button>
+        </div>
+      </div>
+      <div class="guided-ingredient-list" id="guidedIngredientList"></div>
+    </details>
+
+    <section class="guided-step-stage" id="guidedStepStage" tabindex="0"
+             aria-live="polite">
+      <div class="guided-step-meta">
+        <span class="section-eyebrow" id="guidedStepCount">Step 1 of 1</span>
+        <span class="dim num" id="guidedMealPortions"></span>
+      </div>
+      <p class="guided-step-text" id="guidedStepText"></p>
+      <div class="guided-step-ingredients" id="guidedStepIngredients"></div>
+      <div class="guided-timer-actions" id="guidedTimerActions"></div>
+      <footer class="guided-step-nav">
+        <button class="icon-btn guided-nav-button" id="guidedPrev" type="button"
+                aria-label="Previous step" title="Previous step">
+          <i data-lucide="arrow-left"></i>
+        </button>
+        <button class="btn btn-primary guided-next" id="guidedNext" type="button">
+          Next
+          <i data-lucide="arrow-right"></i>
+        </button>
+        <button class="btn btn-primary guided-finish" id="guidedFinish"
+                type="button" hidden>
+          <i data-lucide="check"></i>
+          Finish cooking
+        </button>
+      </footer>
+    </section>
+  </div>
+
+  <section class="guided-complete" id="guidedComplete" hidden>
+    <i data-lucide="circle-check-big"></i>
+    <p class="section-eyebrow">Meal logged</p>
+    <h1 id="guidedCompleteTitle">Cooking complete</h1>
+    <div class="page-head-actions">
+      <a class="btn btn-primary" href="/today">
+        <i data-lucide="calendar-days"></i>
+        Back to today
+      </a>
+      <a class="btn" href="/week">
+        <i data-lucide="rows-3"></i>
+        See week
+      </a>
+    </div>
+  </section>
+
+  <div class="guided-timer-tray" id="guidedTimerTray" hidden
+       aria-live="polite"></div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/guided_cook.js"></script>{% endblock %}

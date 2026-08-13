@@ -1,0 +1,17 @@
+{
+  "name": "King of Meal Prep",
+  "short_name": "KING",
+  "description": "Private meal planning, pantry, nutrition, and batch prep.",
+  "start_url": "/today",
+  "display": "standalone",
+  "background_color": "#10110f",
+  "theme_color": "#10110f",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

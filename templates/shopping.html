@@ -1,0 +1,27 @@
+{% extends "_shell.html" %}
+{% set active = "shop" %}
+{% block title %}Shopping — KING{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-title">Shopping</h1>
+    <p class="page-sub" id="shopSub">Loading…</p>
+  </div>
+  <div class="page-head-actions">
+    <button class="icon-btn" id="prevWeekBtn" aria-label="Previous week"><i data-lucide="chevron-left"></i></button>
+    <button class="btn" id="thisWeekBtn">This week</button>
+    <button class="icon-btn" id="nextWeekBtn" aria-label="Next week"><i data-lucide="chevron-right"></i></button>
+    <button class="btn btn-primary desktop-only" id="doneBtn"><i data-lucide="package-plus"></i>Stock checked</button>
+  </div>
+</header>
+
+{# Sticky "done" bar on mobile so the user can hit it from the bottom of a
+   long list without scrolling back up. Audit M14: the header's button label
+   was overflowing on a 380px-wide phone. #}
+<div class="sticky-done mobile-only">
+  <button class="btn btn-primary" id="doneBtnMobile" type="button"><i data-lucide="package-plus"></i>Stock checked</button>
+</div>
+
+<div id="shopRoot"><p class="dim">Loading…</p></div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/shopping.js"></script>{% endblock %}

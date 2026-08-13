@@ -1,0 +1,166 @@
+{% extends "_shell.html" %}
+{% set active = "pantry" %}
+{% block title %}Scan — KING{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-title">Scan</h1>
+    <p class="page-sub">Capture products, reconcile receipts, and review uncertain matches.</p>
+  </div>
+  <div class="page-head-actions">
+    <a class="btn btn-ghost" href="/pantry"><i data-lucide="arrow-left"></i>Pantry</a>
+  </div>
+</header>
+
+<div class="segmented scan-modes" role="tablist" aria-label="Scan mode">
+  <button class="segmented-tab active" id="modeBarcode" type="button" role="tab"
+          aria-selected="true" aria-controls="barcodeMode" tabindex="0">
+    <i data-lucide="scan-barcode"></i>Barcode
+  </button>
+  <button class="segmented-tab" id="modeReceipt" type="button" role="tab"
+          aria-selected="false" aria-controls="receiptMode" tabindex="-1">
+    <i data-lucide="receipt-text"></i>Receipts
+  </button>
+  <button class="segmented-tab" id="modeReview" type="button" role="tab"
+          aria-selected="false" aria-controls="reviewMode" tabindex="-1">
+    <i data-lucide="inbox"></i>Review <span class="tab-count" id="reviewCount" hidden>0</span>
+  </button>
+</div>
+
+<div id="barcodeMode" role="tabpanel" aria-labelledby="modeBarcode" tabindex="0">
+  <div id="reader" style="width:100%; max-width: 480px; margin: 0 auto;"></div>
+  <p class="hint" id="bcHint">Position the barcode inside the frame. Or type it below.</p>
+  <div class="field" style="max-width: 480px; margin: var(--sp-3) auto;">
+    <label for="manualEan">Manual barcode</label>
+    <input type="text" id="manualEan" inputmode="numeric" autocomplete="off"
+           maxlength="48" placeholder="e.g. 5057545567082">
+    <button class="btn btn-primary" id="lookupEanBtn" type="button" style="margin-top:6px;">Look up</button>
+  </div>
+  <div id="bcResult" class="result"></div>
+  <div id="bcCard" hidden class="bc-card">
+    <div class="section-head">
+      <p class="section-eyebrow">Add to pantry</p>
+      <div id="bcNutrition"></div>
+    </div>
+    <hr class="hr-dotted">
+    <div class="field"><label for="bcName">Name</label><input type="text" id="bcName" maxlength="200"></div>
+    <div class="field-row">
+      <div class="field"><label for="bcQty">Qty</label><input type="number" id="bcQty" value="1" step="any"></div>
+      <div class="field"><label for="bcUnit">Unit</label><input type="text" id="bcUnit" value="piece"></div>
+      <div class="field">
+        <label for="bcPortions">Split into</label>
+        <input type="number" id="bcPortions" min="0.01" max="1000" step="any"
+               placeholder="Not split">
+        <p class="hint" id="bcPortionHint"></p>
+      </div>
+      <div class="field"><label for="bcExp">Expires</label><input type="date" id="bcExp"></div>
+    </div>
+    <div class="field" id="bcPhotoField">
+      <label for="bcPhoto">Product photo <span class="dim">(optional)</span></label>
+      <input type="file" id="bcPhoto" accept="image/jpeg,image/png,image/webp" capture="environment">
+    </div>
+    <div class="page-head-actions" style="justify-content: space-between; margin-top: var(--sp-2);">
+      <button class="btn btn-ghost" id="bcReviewBtn" type="button" hidden>
+        <i data-lucide="inbox"></i>Open review
+      </button>
+      <span class="action-spacer"></span>
+      <button class="icon-btn" id="bcScanAgainBtn" type="button" aria-label="Scan another" title="Scan another">
+        <i data-lucide="scan-line"></i>
+      </button>
+      <button class="btn btn-primary" id="bcSaveBtn" type="button">
+        <i data-lucide="package-plus"></i>Save
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="receiptMode" hidden role="tabpanel" aria-labelledby="modeReceipt" tabindex="0">
+  <div class="receipt-upload">
+    <div class="field">
+      <label for="receiptFile">Receipt photo</label>
+      <input type="file" id="receiptFile" accept="image/jpeg,image/png,image/webp" capture="environment">
+    </div>
+    <div class="field-row receipt-meta-fields">
+      <div class="field"><label for="receiptMerchant">Merchant</label><input type="text" id="receiptMerchant" maxlength="200"></div>
+      <div class="field"><label for="receiptDate">Purchase date</label><input type="date" id="receiptDate"></div>
+      <div class="field"><label for="receiptCurrency">Currency</label><input type="text" id="receiptCurrency" value="EUR" maxlength="3" autocapitalize="characters"></div>
+    </div>
+    <button class="btn btn-primary" id="receiptUploadBtn" type="button">
+      <i data-lucide="scan-text"></i>Process receipt
+    </button>
+    <div id="receiptResult" class="result"></div>
+  </div>
+
+  <section id="receiptDetail" class="receipt-detail" hidden>
+    <div class="receipt-detail-head">
+      <div>
+        <p class="section-eyebrow">Receipt review</p>
+        <h2 id="receiptTitle">Receipt</h2>
+        <p class="section-summary" id="receiptSummary"></p>
+      </div>
+      <a class="btn btn-ghost" id="receiptImageLink" href="#" target="_blank" hidden>
+        <i data-lucide="image"></i>Image
+      </a>
+    </div>
+    <div id="receiptLines" class="receipt-lines"></div>
+    <div id="receiptActions" class="split-actions">
+      <button class="btn btn-danger" id="receiptDiscardBtn" type="button">
+        <i data-lucide="trash-2"></i>Discard
+      </button>
+      <span class="action-spacer"></span>
+      <button class="btn btn-primary" id="receiptCommitBtn" type="button">
+        <i data-lucide="package-check"></i>Commit to pantry
+      </button>
+    </div>
+  </section>
+
+  <section class="receipt-history">
+    <div class="section-head">
+      <div>
+        <p class="section-eyebrow">Recent receipts</p>
+        <p class="section-summary" id="receiptHistorySummary"></p>
+      </div>
+      <button class="icon-btn" id="receiptRefreshBtn" type="button" aria-label="Refresh receipts" title="Refresh receipts">
+        <i data-lucide="refresh-cw"></i>
+      </button>
+    </div>
+    <div id="receiptHistoryList"></div>
+  </section>
+</div>
+
+<div id="reviewMode" hidden role="tabpanel" aria-labelledby="modeReview" tabindex="0">
+  <section class="review-capture">
+    <div>
+      <p class="section-eyebrow">Capture an unrecognized product</p>
+      <p class="section-summary">Keep a photo in the review inbox until its identity is confirmed.</p>
+    </div>
+    <div class="review-capture-fields">
+      <div class="field">
+        <label for="reviewPhoto">Product photo</label>
+        <input type="file" id="reviewPhoto" accept="image/jpeg,image/png,image/webp" capture="environment">
+      </div>
+      <div class="field"><label for="reviewPhotoName">Suggested name</label><input type="text" id="reviewPhotoName" maxlength="200"></div>
+      <div class="field"><label for="reviewPhotoNote">Note</label><input type="text" id="reviewPhotoNote" maxlength="500"></div>
+      <button class="btn btn-primary" id="reviewPhotoBtn" type="button">
+        <i data-lucide="camera"></i>Add to review
+      </button>
+    </div>
+  </section>
+
+  <div class="section-head review-list-head">
+    <div>
+      <p class="section-eyebrow">Open items</p>
+      <p class="section-summary" id="reviewSummary"></p>
+    </div>
+    <button class="icon-btn" id="reviewRefreshBtn" type="button" aria-label="Refresh review inbox" title="Refresh review inbox">
+      <i data-lucide="refresh-cw"></i>
+    </button>
+  </div>
+  <div id="reviewList" class="review-list"></div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/vendor/html5-qrcode.min.js"></script>
+<script src="/static/js/scan.js"></script>
+{% endblock %}

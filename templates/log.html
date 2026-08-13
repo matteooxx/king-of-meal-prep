@@ -1,0 +1,112 @@
+{% extends "_shell.html" %}
+{% set active = "log" %}
+{% block title %}Today — KING{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-title" id="logTitle">Today</h1>
+    <p class="page-sub" id="logSub">Loading…</p>
+  </div>
+  <div class="page-head-actions">
+    <button class="icon-btn" id="prevDayBtn" aria-label="Previous day"><i data-lucide="chevron-left"></i></button>
+    <button class="btn" id="todayBtn">Today</button>
+    <button class="icon-btn" id="nextDayBtn" aria-label="Next day"><i data-lucide="chevron-right"></i></button>
+    <button class="btn btn-primary desktop-only" id="adHocBtn"><i data-lucide="plus"></i>Log meal</button>
+  </div>
+</header>
+
+<button class="fab mobile-only" id="adHocFab" type="button" aria-label="Log a meal"><i data-lucide="plus"></i></button>
+
+<div class="macro-rings" id="macroRings"></div>
+
+<div id="trainingToggle" role="group" aria-label="Training day" style="display: flex; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-4); padding: var(--sp-2); border: 1px dotted var(--hairline);">
+  <span class="eyebrow">Training day?</span>
+  <div class="radio-row" style="flex:1; max-width: 200px;">
+    <label><input type="radio" name="train" value="0"><span>Rest</span></label>
+    <label><input type="radio" name="train" value="1"><span>Training</span></label>
+  </div>
+  <span class="dim" style="font-size: var(--fs-xxs);">Shifts today's targets.</span>
+</div>
+
+<p class="eyebrow">Planned</p>
+<hr class="hr-dotted">
+<div id="plannedList"></div>
+
+<p class="eyebrow" style="margin-top: var(--sp-5);">Logged</p>
+<hr class="hr-dotted">
+<div id="adHocList"></div>
+
+<div class="modal" id="adHocModal" hidden role="dialog" aria-modal="true" aria-labelledby="ahTitle">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="ahTitle">Log a meal</h2>
+      <button class="icon-btn modal-x" id="ahCloseBtn" type="button" aria-label="Close"><i data-lucide="x"></i></button>
+    </div>
+
+    <div class="segmented log-source-modes" role="group" aria-label="Food source">
+      <button class="active" id="ahPantryMode" type="button" aria-pressed="true">
+        <i data-lucide="package-search"></i>From pantry
+      </button>
+      <button id="ahQuickMode" type="button" aria-pressed="false">
+        <i data-lucide="pencil-line"></i>Quick entry
+      </button>
+    </div>
+
+    <div id="ahPantryFields">
+      <div class="field">
+        <label for="ahPantryItem">Food</label>
+        <select id="ahPantryItem"></select>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="ahFoodQuantity">Amount</label>
+          <input type="number" id="ahFoodQuantity" min="0.000001" step="any" inputmode="decimal">
+        </div>
+        <div class="field">
+          <label for="ahFoodUnit">Unit</label>
+          <input type="text" id="ahFoodUnit" maxlength="30" value="g">
+        </div>
+      </div>
+      <div class="food-log-preview" id="ahFoodPreview"></div>
+      <p class="hint">Logging food leaves pantry stock unchanged.</p>
+    </div>
+
+    <div class="field" id="ahQuickFields" hidden>
+      <label for="ahFreeText">What did you eat?</label>
+      <input type="text" id="ahFreeText" placeholder='e.g. "yogurt + granola"' autocomplete="off">
+    </div>
+
+    <details class="ah-details">
+      <summary>Details (optional)</summary>
+      <div class="field-row" style="margin-top: var(--sp-2);">
+        <div class="field">
+          <label for="ahSlot">Slot</label>
+          <select id="ahSlot">
+            <option value="breakfast">Breakfast</option>
+            <option value="lunch">Lunch</option>
+            <option value="dinner">Dinner</option>
+            <option value="snack">Snack</option>
+          </select>
+        </div>
+        <div class="field" id="ahServingsField"><label for="ahServings">Servings</label><input type="number" id="ahServings" min="0.25" step="0.25" value="1"></div>
+      </div>
+      <div id="ahManualMacros">
+        <p class="section-eyebrow" style="margin-top: var(--sp-3)">Macros</p>
+        <div class="field-row">
+        <div class="field"><label for="ahKcal">kcal</label><input type="number" id="ahKcal" step="any"></div>
+        <div class="field"><label for="ahProtein">protein g</label><input type="number" id="ahProtein" step="any"></div>
+        <div class="field"><label for="ahCarbs">carbs g</label><input type="number" id="ahCarbs" step="any"></div>
+        <div class="field"><label for="ahFat">fat g</label><input type="number" id="ahFat" step="any"></div>
+        </div>
+      </div>
+    </details>
+
+    <div class="page-head-actions" style="justify-content: space-between; margin-top: var(--sp-4);">
+      <button class="btn btn-ghost" id="ahCancel">Cancel</button>
+      <button class="btn btn-primary" id="ahSave">Log it</button>
+    </div>
+    <div class="result" id="ahResult"></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/log.js"></script>{% endblock %}

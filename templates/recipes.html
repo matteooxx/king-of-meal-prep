@@ -1,0 +1,184 @@
+{% extends "_shell.html" %}
+{% set active = "recipes" %}
+{% block title %}Recipes — KING{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-title">Recipes</h1>
+    <p class="page-sub" id="recipeCount">Loading…</p>
+  </div>
+  <div style="display:flex; gap:.5rem;">
+    <button class="btn btn-primary" id="addRecipeBtn"><i data-lucide="plus"></i>Recipe</button>
+  </div>
+</header>
+
+<div style="margin-bottom: var(--sp-3);">
+  <label class="sr-only" for="searchInput">Search recipes</label>
+  <input type="search" id="searchInput" placeholder="Search recipes…"
+         style="width:100%; padding: var(--sp-2) var(--sp-3); background: var(--bg-elev-1); border: 1px solid var(--hairline); color: var(--text); font-family: inherit;">
+</div>
+
+<div id="filterChips" style="display:flex; gap: 4px; margin-bottom: var(--sp-3); flex-wrap: wrap;">
+  <button class="btn btn-ghost filter-chip active" data-filter="all">All</button>
+  <button class="btn btn-ghost filter-chip" data-filter="favorites">⚑ Favorites</button>
+  <button class="btn btn-ghost filter-chip" data-filter="quick">Quick (≤30m)</button>
+  <button class="btn btn-ghost filter-chip" data-filter="breakfast">Breakfast</button>
+  <button class="btn btn-ghost filter-chip" data-filter="lunch">Lunch</button>
+  <button class="btn btn-ghost filter-chip" data-filter="dinner">Dinner</button>
+  <button class="btn btn-ghost filter-chip" data-filter="snack">Snack</button>
+</div>
+
+<div id="recipeList" class="recipe-list">
+  <p class="dim" style="text-align:center; padding: var(--sp-7);">Loading…</p>
+</div>
+
+<!-- New recipe picker modal -->
+<div class="modal" id="addModal" hidden role="dialog" aria-modal="true" aria-labelledby="addModalTitle">
+  <div class="modal-card">
+    <h2 class="wizard-title" id="addModalTitle" style="margin-bottom: var(--sp-2);">Add a recipe</h2>
+    <p class="dim" style="font-size: var(--fs-sm); margin-bottom: var(--sp-4);">How are you adding it?</p>
+    <div class="add-options">
+      <button class="add-option" data-mode="manual">
+        <strong>Type by hand</strong>
+        <span class="dim">Manual entry — title, ingredients, steps.</span>
+      </button>
+      <button class="add-option" data-mode="url">
+        <strong>From a URL</strong>
+        <span class="dim">Recipe blogs, BBC Good Food, NYT, Italian sites…</span>
+      </button>
+      <button class="add-option" data-mode="paste">
+        <strong>Paste raw text</strong>
+        <span class="dim">Import from notes, email, or chat.</span>
+      </button>
+      <button class="add-option" data-mode="generate">
+        <strong>Generate with Gemini</strong>
+        <span class="dim">Pro model · 5/day cap · describe what you want</span>
+      </button>
+    </div>
+    <div style="margin-top: var(--sp-4); text-align: right;">
+      <button class="btn btn-ghost" id="addModalClose">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Manual / URL / Edit form -->
+<div class="modal" id="formModal" hidden role="dialog" aria-modal="true" aria-labelledby="formTitle">
+  <div class="modal-card form-modal">
+    <h2 class="wizard-title" id="formTitle" style="margin-bottom: var(--sp-3);">New recipe</h2>
+
+    <div id="urlBlock" class="field" hidden>
+      <label for="urlInput">Recipe URL</label>
+      <div style="display:flex; gap: 6px;">
+        <input type="url" id="urlInput" placeholder="https://…" style="flex:1;">
+        <button class="btn btn-primary" id="urlImportBtn" type="button">Import</button>
+      </div>
+      <p class="hint">Tries recipe-scrapers first; falls back to Gemini when needed.</p>
+      <div class="result" id="urlResult"></div>
+    </div>
+
+    <div id="generateBlock" class="field" hidden>
+      <label for="genPromptInput">What kind of recipe?</label>
+      <input type="text" id="genPromptInput" maxlength="2000"
+             placeholder="High-protein chicken dinner under 30 minutes">
+      <div class="page-head-actions" style="margin-top: var(--sp-2);">
+        <button class="btn btn-primary" id="genGoBtn" type="button">Generate</button>
+      </div>
+      <div class="result" id="genResult"></div>
+    </div>
+
+    <div id="pasteBlock" class="field" hidden>
+      <label for="pasteRecipeInput">Recipe text</label>
+      <textarea id="pasteRecipeInput" rows="10" maxlength="30000"
+                placeholder="Recipe title&#10;&#10;Ingredients&#10;- 400 g chicken&#10;&#10;Method&#10;1. Heat the oven..."></textarea>
+      <div class="page-head-actions" style="margin-top: var(--sp-2);">
+        <button class="btn btn-primary" id="pasteImportBtn" type="button"><i data-lucide="clipboard-paste"></i>Parse recipe</button>
+      </div>
+      <div class="result" id="pasteResult"></div>
+    </div>
+
+    <div class="field"><label for="recipeName">Title</label><input type="text" id="recipeName" maxlength="200" required></div>
+    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--sp-3);">
+      <div class="field"><label for="recipeServings">Servings</label><input type="number" id="recipeServings" min="1" max="99" value="1"></div>
+      <div class="field"><label for="recipeTotalTime">Total time (min)</label><input type="number" id="recipeTotalTime" min="0" max="999"></div>
+      <div class="field"><label for="recipeActiveTime">Active time (min)</label><input type="number" id="recipeActiveTime" min="0" max="999"></div>
+    </div>
+    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--sp-3);">
+      <div class="field"><label for="recipeCuisine">Cuisine</label><input type="text" id="recipeCuisine" maxlength="60" placeholder="Italian"></div>
+      <div class="field">
+        <label for="recipeMealSlot">Meal slot</label>
+        <select id="recipeMealSlot">
+          <option value="">(any)</option>
+          <option value="breakfast">Breakfast</option>
+          <option value="lunch">Lunch</option>
+          <option value="dinner">Dinner</option>
+          <option value="snack">Snack</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="recipeDifficulty">Difficulty</label>
+        <select id="recipeDifficulty">
+          <option value="">Not set</option>
+          <option value="1">1 - trivial</option>
+          <option value="2">2 - easy</option>
+          <option value="3">3 - medium</option>
+          <option value="4">4 - hard</option>
+          <option value="5">5 - project</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="recipeEquipment">Equipment (comma-separated)</label>
+      <input type="text" id="recipeEquipment" placeholder="oven, blender">
+    </div>
+
+    <div class="field">
+      <div class="field-label-actions">
+        <label for="recipeIngredients">Ingredients</label>
+        <button class="btn btn-ghost btn-compact" id="ingredientReviewBtn" type="button">
+          <i data-lucide="scan-search"></i>Check nutrition
+        </button>
+      </div>
+      <textarea id="recipeIngredients" rows="7"
+                placeholder="400 g chicken thigh&#10;1 tbsp olive oil&#10;2 onions"
+                style="font-family: var(--ff-mono); font-size: var(--fs-sm);"></textarea>
+      <p class="hint" id="ingredientHint">One ingredient per line. Amounts are required for nutrient totals.</p>
+      <section class="ingredient-review" id="ingredientReview" hidden aria-live="polite">
+        <div class="ingredient-review-head">
+          <div id="ingredientReviewSummary"></div>
+          <div class="page-head-actions">
+            <button class="icon-btn" id="ingredientAddBtn" type="button"
+                    aria-label="Add ingredient" title="Add ingredient">
+              <i data-lucide="plus"></i>
+            </button>
+            <button class="icon-btn" id="ingredientRecalculateBtn" type="button"
+                    aria-label="Recalculate nutrition" title="Recalculate nutrition">
+              <i data-lucide="refresh-cw"></i>
+            </button>
+            <button class="icon-btn" id="ingredientRawBtn" type="button"
+                    aria-label="Edit ingredient text" title="Edit ingredient text">
+              <i data-lucide="file-pen-line"></i>
+            </button>
+          </div>
+        </div>
+        <div id="ingredientReviewList"></div>
+      </section>
+    </div>
+
+    <div class="field">
+      <label for="recipeSteps">Steps (one per line, in order)</label>
+      <textarea id="recipeSteps" rows="6" style="font-family: var(--ff-body); font-size: var(--fs-sm);"></textarea>
+    </div>
+
+    <div class="field"><label for="recipeNotes">Notes (optional)</label><textarea id="recipeNotes" rows="2" maxlength="5000"></textarea></div>
+
+    <div style="display:flex; justify-content: space-between; align-items: center; margin-top: var(--sp-4);">
+      <button class="btn btn-ghost" id="formCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="formSaveBtn">Save</button>
+    </div>
+    <div class="result" id="formResult"></div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}<script src="/static/js/recipes.js"></script>{% endblock %}

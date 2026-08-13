@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-timezone="{{ app_timezone }}"
+      data-prepared-shelf-life="{{ prepared_shelf_life_days }}"
+      data-frozen-shelf-life="{{ frozen_shelf_life_days }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}KING - The King of Meal Prep{% endblock %}</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="manifest" href="/static/manifest.webmanifest">
+<meta name="theme-color" content="#10110f">
+<link rel="preload" href="/static/fonts/ibm-plex-sans-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/static/fonts/jetbrains-mono-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/static/css/app.css">
+<script>
+(() => {
+  const choice = localStorage.getItem("king-theme") || "dark";
+  const dark = choice === "system"
+    ? matchMedia("(prefers-color-scheme: dark)").matches
+    : choice === "dark";
+  document.documentElement.dataset.theme = dark ? "dark" : "light";
+})();
+</script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+<div class="app-layout">
+  <nav class="bottom-nav" aria-label="Primary navigation">
+    <a class="nav-brand desktop-only" href="/today" aria-label="King home">
+      <span class="nav-brand-mark">K</span>
+      <span><strong>KING</strong><small>Meal prep</small></span>
+    </a>
+    <p class="nav-section desktop-only">Plan</p>
+    <a href="/today" data-route="/today" class="{{ 'active' if active=='today' else '' }}">
+      <i class="icon" data-lucide="calendar-days" aria-hidden="true"></i>
+      <span>Today</span>
+    </a>
+    <a href="/week" data-route="/week" class="desktop-only {{ 'active' if active=='week' else '' }}">
+      <i class="icon" data-lucide="rows-3" aria-hidden="true"></i>
+      <span>Week</span>
+    </a>
+    <p class="nav-section desktop-only">Kitchen</p>
+    <a href="/pantry" data-route="/pantry" class="{{ 'active' if active=='pantry' else '' }}">
+      <i class="icon" data-lucide="archive" aria-hidden="true"></i>
+      <span>Pantry</span>
+    </a>
+    <a href="/recipes" data-route="/recipes" class="{{ 'active' if active=='recipes' else '' }}">
+      <i class="icon" data-lucide="notebook-tabs" aria-hidden="true"></i>
+      <span>Recipes</span>
+    </a>
+    <a href="/log" data-route="/log" class="{{ 'active' if active=='log' else '' }}">
+      <i class="icon" data-lucide="chart-no-axes-combined" aria-hidden="true"></i>
+      <span>Log</span>
+    </a>
+    <a href="/shopping" data-route="/shopping" class="{{ 'active' if active=='shop' else '' }}">
+      <i class="icon" data-lucide="shopping-basket" aria-hidden="true"></i>
+      <span>Shop</span>
+    </a>
+    <button class="profile-trigger" id="profileTrigger" type="button"
+            aria-label="Open menu" aria-haspopup="dialog" aria-expanded="false">
+      <i class="icon" data-lucide="menu" aria-hidden="true"></i>
+      <span>Menu</span>
+    </button>
+    <div class="nav-foot desktop-only">
+      <span class="connection-dot" id="connectionDot"></span>
+      <span id="connectionLabel">Online</span>
+    </div>
+  </nav>
+
+  <main class="app-main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <div class="drawer-overlay" id="drawerOverlay" hidden></div>
+  <aside class="drawer" id="profileDrawer" hidden role="dialog" aria-modal="true" aria-label="Menu">
+    <header class="drawer-head">
+      <p class="section-eyebrow">Menu</p>
+      <button class="icon-btn drawer-x" id="drawerClose" type="button" aria-label="Close">
+        <i data-lucide="x" aria-hidden="true"></i>
+      </button>
+    </header>
+    <div class="drawer-macro" id="drawerMacroStrip">
+      <p class="dim drawer-label">Today's macros</p>
+      <div class="macro-mini" id="macroMini"></div>
+    </div>
+    <nav class="drawer-nav">
+      <a href="/scan" class="drawer-link">
+        <i class="icon" data-lucide="scan-barcode" aria-hidden="true"></i>
+        Scan barcode / receipt
+      </a>
+      <a href="/pantry#prepared" class="drawer-link">
+        <i class="icon" data-lucide="package-check" aria-hidden="true"></i>
+        Prepared portions
+      </a>
+      <a href="/settings" class="drawer-link">
+        <i class="icon" data-lucide="settings-2" aria-hidden="true"></i>
+        Settings
+      </a>
+      <div class="drawer-theme">
+        <span>Appearance</span>
+        <div class="segmented compact" role="group" aria-label="Appearance">
+          <button type="button" data-theme-choice="dark" title="Dark theme">
+            <i data-lucide="moon" aria-hidden="true"></i>
+          </button>
+          <button type="button" data-theme-choice="light" title="Light theme">
+            <i data-lucide="sun" aria-hidden="true"></i>
+          </button>
+          <button type="button" data-theme-choice="system" title="Use system theme">
+            <i data-lucide="monitor" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+      <button class="drawer-link drawer-signout" id="signoutBtn" type="button">
+        <i class="icon" data-lucide="log-out" aria-hidden="true"></i>
+        Sign out
+      </button>
+    </nav>
+  </aside>
+
+  <div class="modal" id="cookModal" hidden role="dialog" aria-modal="true" aria-labelledby="cookModalTitle">
+    <div class="modal-card cook-modal-card">
+      <div class="modal-head">
+        <div>
+          <p class="section-eyebrow">Complete meal</p>
+          <h2 id="cookModalTitle">Cook meal</h2>
+        </div>
+        <button class="icon-btn modal-x" id="cookModalClose" type="button" aria-label="Close">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <p class="cook-recipe-name" id="cookRecipeName"></p>
+      <div class="segmented cook-mode" id="cookMode" role="group" aria-label="Meal source">
+        <button type="button" data-cook-mode="fresh">
+          <i data-lucide="cooking-pot" aria-hidden="true"></i>
+          Cook fresh
+        </button>
+        <button type="button" data-cook-mode="prepared">
+          <i data-lucide="package-check" aria-hidden="true"></i>
+          Use prepared
+        </button>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="cookEatServings">Portions eating now</label>
+          <input id="cookEatServings" type="number" min="0.1" max="99" step="0.5">
+        </div>
+        <div class="field" id="cookBatchField">
+          <label for="cookBatchServings">Portions preparing</label>
+          <input id="cookBatchServings" type="number" min="0.1" max="200" step="0.5">
+        </div>
+      </div>
+      <div id="cookStorageFields">
+        <label class="toggle-row">
+          <span><strong>Freeze stored portions</strong><small>Uses the longer freezer shelf life.</small></span>
+          <input id="cookFrozen" type="checkbox">
+        </label>
+        <div class="field">
+          <label for="cookExpires">Use stored portions by</label>
+          <input id="cookExpires" type="date">
+        </div>
+      </div>
+      <p class="hint" id="cookAvailability"></p>
+      <div class="result" id="cookResult"></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="cookCancel" type="button">Cancel</button>
+        <button class="btn btn-primary" id="cookConfirm" type="button">
+          <i data-lucide="check" aria-hidden="true"></i>
+          Complete meal
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="feedbackModal" hidden role="dialog" aria-modal="true" aria-labelledby="feedbackModalTitle">
+    <div class="modal-card feedback-modal-card">
+      <div class="modal-head">
+        <div>
+          <p class="section-eyebrow">Meal feedback</p>
+          <h2 id="feedbackModalTitle">How was it?</h2>
+        </div>
+        <button class="icon-btn modal-x" id="feedbackModalClose" type="button" aria-label="Close">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <p class="cook-recipe-name" id="feedbackRecipeName"></p>
+      <div class="rating-control" id="feedbackStars" aria-label="Recipe rating"></div>
+      <button class="icon-btn feedback-clear" id="feedbackClearRating" type="button"
+              aria-label="Clear rating" title="Clear rating">
+        <i data-lucide="eraser" aria-hidden="true"></i>
+      </button>
+      <div class="segmented feedback-preference" role="group" aria-label="Planning preference">
+        <button type="button" data-feedback-preference="make_again">
+          <i data-lucide="repeat-2" aria-hidden="true"></i>
+          Make again
+        </button>
+        <button type="button" data-feedback-preference="neutral">
+          <i data-lucide="minus" aria-hidden="true"></i>
+          Neutral
+        </button>
+        <button type="button" data-feedback-preference="avoid">
+          <i data-lucide="ban" aria-hidden="true"></i>
+          Avoid
+        </button>
+      </div>
+      <div class="result" id="feedbackResult"></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="feedbackSkip" type="button">Not now</button>
+        <button class="btn btn-primary" id="feedbackSave" type="button">
+          <i data-lucide="check" aria-hidden="true"></i>
+          Save feedback
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-region" id="toastRegion" aria-live="polite"></div>
+</div>
+<script src="/static/js/vendor/lucide.min.js"></script>
+<script src="/static/js/app.js"></script>
+<script src="/static/js/shell.js"></script>
+<script src="/static/js/feedback.js"></script>
+<script src="/static/js/cook.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

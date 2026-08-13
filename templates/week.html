@@ -1,0 +1,74 @@
+{% extends "_shell.html" %}
+{% set active = "week" %}
+{% block title %}Week — KING{% endblock %}
+{% block content %}
+<header class="page-head">
+  <div>
+    <h1 class="page-title">Week</h1>
+    <p class="page-sub" id="weekSub">Loading…</p>
+  </div>
+  <div class="page-head-actions">
+    <a class="btn btn-ghost" href="/today"><i data-lucide="arrow-left"></i>Today</a>
+    <button class="icon-btn" id="prevWeekBtn" aria-label="Previous week"><i data-lucide="chevron-left"></i></button>
+    <button class="btn" id="todayBtn">This week</button>
+    <button class="icon-btn" id="nextWeekBtn" aria-label="Next week"><i data-lucide="chevron-right"></i></button>
+    <button class="btn btn-primary" id="planWeekBtn"><i data-lucide="wand-sparkles"></i>Review proposal</button>
+  </div>
+</header>
+
+<div id="weekRoot"><p class="dim">Loading…</p></div>
+
+<div class="modal" id="cellActionModal" hidden role="dialog" aria-modal="true" aria-labelledby="cellActionTitle">
+  <div class="modal-card compact-modal">
+    <div class="modal-head">
+      <h2 id="cellActionTitle">Meal slot</h2>
+      <button class="icon-btn modal-x" id="cellActionClose" type="button" aria-label="Close"><i data-lucide="x"></i></button>
+    </div>
+    <p id="cellActionName"></p>
+    <div class="field servings-edit" id="cellServingsField">
+      <label for="cellServings">Portions for this meal</label>
+      <div class="inline-control">
+        <input id="cellServings" type="number" min="0.1" max="99" step="0.5">
+        <button class="btn" id="cellSaveServingsBtn" type="button">Update</button>
+      </div>
+    </div>
+    <div class="slot-action-list">
+      <button class="btn btn-primary" id="cellChooseBtn" type="button"><i data-lucide="notebook-tabs"></i>Choose recipe</button>
+      <button class="btn" id="cellOpenBtn" type="button"><i data-lucide="external-link"></i>Open recipe</button>
+      <button class="btn" id="cellCookBtn" type="button"><i data-lucide="cooking-pot"></i>Complete meal</button>
+      <button class="btn" id="cellSkipBtn" type="button"><i data-lucide="forward"></i>Skip</button>
+      <button class="btn" id="cellResetBtn" type="button"><i data-lucide="undo-2"></i>Reset</button>
+      <button class="btn" id="cellLockBtn" type="button"><i data-lucide="lock"></i>Lock</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="recipePickerModal" hidden role="dialog" aria-modal="true" aria-labelledby="recipePickerTitle">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="recipePickerTitle">Choose recipe</h2>
+      <button class="icon-btn modal-x" id="recipePickerClose" type="button" aria-label="Close"><i data-lucide="x"></i></button>
+    </div>
+    <label for="recipePickerSearch">Search</label>
+    <input id="recipePickerSearch" type="search" autocomplete="off">
+    <div class="recipe-picker-list" id="recipePickerList"></div>
+  </div>
+</div>
+
+<div class="modal" id="weekProposalModal" hidden role="dialog" aria-modal="true" aria-labelledby="weekProposalTitle">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="weekProposalTitle">Week proposal</h2>
+      <button class="icon-btn modal-x" id="weekProposalClose" type="button" aria-label="Close"><i data-lucide="x"></i></button>
+    </div>
+    <p id="weekProposalSummary"></p>
+    <p class="hint" id="weekProposalConflicts"></p>
+    <div id="weekProposalPicks"></div>
+    <div class="page-head-actions" style="justify-content:flex-end; margin-top:var(--sp-4);">
+      <button class="btn btn-ghost" id="weekProposalCancel" type="button">Cancel</button>
+      <button class="btn btn-primary" id="weekProposalConfirm" type="button">Save proposal</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/week.js"></script>{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "_shell.html" %}
+{% set active = "today" %}
+{% block title %}Today — KING{% endblock %}
+{% block content %}
+{# Page-head with day-ribbon underneath. The ribbon lets the user scrub
+   to other days within the week without leaving this surface. #}
+<header class="page-head">
+  <div>
+    <h1 class="page-title display" id="todayTitle">Today</h1>
+    <p class="page-sub" id="todaySub">Loading…</p>
+  </div>
+  <div class="page-head-actions">
+    <a class="btn btn-ghost" href="/week"><i data-lucide="rows-3"></i>See week</a>
+    <button class="btn" id="planWeekBtn"><i data-lucide="wand-sparkles"></i>Plan week</button>
+  </div>
+</header>
+
+<div class="day-ribbon" id="dayRibbon" aria-label="day picker"></div>
+
+<div id="todayRoot" aria-live="polite"><p class="dim">Loading…</p></div>
+
+{# Plan-week preview modal (D5). Replaces the native confirm() — shows what
+   would be overwritten + skipped reasons inline before committing. #}
+<div class="modal" id="planPreviewModal" hidden role="dialog" aria-modal="true" aria-labelledby="planPreviewTitle">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="planPreviewTitle">Plan this week</h2>
+      <button class="icon-btn modal-x" id="planPreviewClose" type="button" aria-label="Close"><i data-lucide="x"></i></button>
+    </div>
+    <p class="dim" id="planPreviewBody" style="font-size: var(--fs-sm);">Loading proposal…</p>
+    <div id="planPreviewSkipped"></div>
+    <div id="planPreviewPicks"></div>
+    <div class="page-head-actions" style="justify-content: flex-end; margin-top: var(--sp-4);">
+      <button class="btn btn-ghost" id="planPreviewCancel">Cancel</button>
+      <button class="btn btn-primary" id="planPreviewConfirm">Save proposal</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}<script src="/static/js/today.js"></script>{% endblock %}

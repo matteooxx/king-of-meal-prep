@@ -1,0 +1,9 @@
+{% extends "_shell.html" %}
+{% set active = "recipes" %}
+{% block title %}Recipe — KING{% endblock %}
+{% block content %}
+<div id="recipeRoot" data-rid="{{ rid }}">
+  <p class="dim" style="text-align:center; padding: var(--sp-7);">Loading…</p>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/recipe_detail.js"></script>{% endblock %}
