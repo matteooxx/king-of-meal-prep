@@ -3,7 +3,7 @@
 # of lxml).
 
 # ---- builder ----
-FROM python:3.12-slim AS builder
+FROM python:3.14-slim AS builder
 
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
       build-essential libxml2-dev libxslt1-dev \
@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 
 # ---- runtime ----
-FROM python:3.12-slim
+FROM python:3.14-slim
 
 # tesseract for receipt OCR; ca-certificates for httpx TLS.
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
