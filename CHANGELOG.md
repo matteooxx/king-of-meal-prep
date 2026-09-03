@@ -3,7 +3,7 @@
 All notable changes are documented here. The project follows semantic
 versioning from the first public release.
 
-## Unreleased
+## 2.3.0 - 2026-09-03
 
 ### Added
 
@@ -41,6 +41,8 @@ versioning from the first public release.
   allergy, equipment, time, rotation, pantry, and prepared-food constraints.
 - Fresh meals open guided cooking from Today and Week; prepared portions keep
   the faster direct logging path.
+- The publication runbook and the required status checks now target GitHub
+  Actions; the GitLab CI definition has been removed.
 
 ### Migration
 

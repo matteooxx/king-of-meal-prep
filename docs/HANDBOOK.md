@@ -67,7 +67,7 @@ directory and temporary filesystem are writable.
 | `static/`, `templates/` | browser UI and PWA assets |
 | `scripts/` | setup, health, nutrition refresh, TrueNAS integration |
 | `tests/` | isolated correctness and security regression tests |
-| `.gitlab-ci.yml` | GitLab tests, audit, JavaScript checks, image build |
+| `.github/workflows/ci.yml` | GitHub tests, audit, JavaScript checks, image build |
 
 ## 3. Persistent Data
 
@@ -767,7 +767,7 @@ Use semantic versions and update `CHANGELOG.md` for user-visible behavior,
 schema changes, security fixes, and rollback constraints.
 
 Before any public push, follow [`PUBLIC-GIT.md`](PUBLIC-GIT.md). The checklist
-includes publication from a deployment NAS to GitLab. A release is not
+includes publication from a deployment NAS to GitHub. A release is not
 publishable if runtime data, private infrastructure details, secrets, or
 unsafe Git history remain.
 

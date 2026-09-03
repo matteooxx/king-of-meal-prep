@@ -132,10 +132,10 @@ See [`SECURITY.md`](SECURITY.md) for the threat model and reporting process.
 
 ## Public Repository
 
-The publication checklist and exact GitLab commands are in
+The publication checklist and exact GitHub commands are in
 [`docs/PUBLIC-GIT.md`](docs/PUBLIC-GIT.md). It intentionally separates source
 from private runtime state and includes history and secret scans before push.
-GitLab CI runs the Python tests, API smoke test, JavaScript syntax checks,
+GitHub Actions runs the Python tests, API smoke test, JavaScript syntax checks,
 dependency audit, and container build.
 
 ## License
