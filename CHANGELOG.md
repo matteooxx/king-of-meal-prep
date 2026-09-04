@@ -3,6 +3,13 @@
 All notable changes are documented here. The project follows semantic
 versioning from the first public release.
 
+## Unreleased
+
+### Changed
+
+- Dependency updates: `beautifulsoup4` 4.15.0, `httpx` 0.28.1 and
+  `recipe-scrapers` 15.12.0.
+
 ## 2.3.0 - 2026-09-03
 
 ### Added
