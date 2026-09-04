@@ -1,0 +1,7 @@
+# Normalise line endings in the repository so that a checkout on Windows
+# cannot introduce CRLF into shell scripts, Dockerfiles or Python sources
+# that are executed on Linux and inside the container.
+* text=auto eol=lf
+
+# Binary assets must never be converted.
+*.woff2 binary

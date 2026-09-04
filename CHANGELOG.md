@@ -44,6 +44,15 @@ versioning from the first public release.
 - The publication runbook and the required status checks now target GitHub
   Actions; the GitLab CI definition has been removed.
 
+### Security
+
+- `cryptography` is pinned to `50.0.1`, resolving PYSEC-2026-3552. The previous
+  `49.0.0` pin was reported by `pip-audit` in continuous integration.
+- The workflow uses `actions/checkout`, `actions/setup-python` and
+  `actions/setup-node` v7, which run on a supported Node runtime.
+- A `.gitattributes` file normalises line endings to LF so that a checkout on
+  Windows cannot introduce CRLF into scripts executed on Linux.
+
 ### Migration
 
 - SQLite schema version advances to `7`. Version `5` adds optional raw-pantry
