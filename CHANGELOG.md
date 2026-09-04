@@ -9,6 +9,8 @@ versioning from the first public release.
 
 - Dependency updates: `beautifulsoup4` 4.15.0, `httpx` 0.28.1 and
   `recipe-scrapers` 15.12.0.
+- Gunicorn advances to 26.x. The container still runs a single gthread worker
+  with eight threads and a 120-second timeout.
 
 ## 2.3.0 - 2026-09-03
 
