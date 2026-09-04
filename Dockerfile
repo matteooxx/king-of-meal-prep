@@ -45,12 +45,17 @@ COPY --chown=king:king barcodes/ barcodes/
 COPY --chown=king:king scripts/init-local-env.py scripts/init-local-env.py
 COPY --chown=king:king scripts/restore-backup.py scripts/restore-backup.py
 
+# Gunicorn 25.1 and later open a control socket at $XDG_RUNTIME_DIR/gunicorn.ctl,
+# falling back to $HOME/.gunicorn/gunicorn.ctl when that variable is unset. The
+# root filesystem is read-only by design, so point the socket at the writable
+# temporary filesystem instead. There is no option to disable the control server.
 ENV APP_ENV_PATH=/data/runtime/app.env \
     ENV_MARKER_PATH=/data/runtime/.env-changed \
     DB_PATH=/data/runtime/data.db \
     DB_BACKUP_DIR=/data/runtime/backups \
     NUTRITION_DB=/data/datasets/nutrition.db \
     HOME=/home/king \
+    XDG_RUNTIME_DIR=/tmp \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 

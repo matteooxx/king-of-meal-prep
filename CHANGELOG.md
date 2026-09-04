@@ -12,6 +12,13 @@ versioning from the first public release.
 - Gunicorn advances to 26.x. The container still runs a single gthread worker
   with eight threads and a 120-second timeout.
 
+### Fixed
+
+- Gunicorn 25.1 and later open a control socket under `$HOME` when
+  `XDG_RUNTIME_DIR` is unset, which fails on the read-only root filesystem and
+  logged an error on every start. The image now points `XDG_RUNTIME_DIR` at the
+  writable temporary filesystem, so the read-only root is preserved.
+
 ## 2.3.0 - 2026-09-03
 
 ### Added
