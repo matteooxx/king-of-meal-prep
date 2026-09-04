@@ -7,6 +7,23 @@ and shopping into one workflow.
 It is designed for one household account. It is not a medical device and its
 nutrition estimates should not be used as medical advice.
 
+## Deployment Boundary
+
+Read this before installing it anywhere.
+
+The application has one administrator account and one household profile. There
+is no multi-user isolation and no tenant separation. It stores recipes, pantry
+contents, meal history, purchase prices, body measurements, and nutrition
+targets, so treat any deployment as private data.
+
+Run it on loopback, on a trusted private network, or behind an authenticated
+HTTPS reverse proxy. Do not expose the reference Compose port directly to the
+internet. Behind a proxy, set `FORCE_HTTPS=true` and restrict `TRUSTED_HOSTS`
+to the real hostname plus local health-check names.
+
+[`SECURITY.md`](SECURITY.md) documents the threat model, the controls already
+in place, and the private vulnerability reporting process.
+
 ## What It Does
 
 - Builds a seven-day meal plan around nutrition targets, time, equipment,
@@ -56,8 +73,9 @@ feedback workflow is in [`docs/PRODUCT-RESEARCH.md`](docs/PRODUCT-RESEARCH.md).
 
 ## Quick Start With Docker
 
-Requirements: Docker Engine with Compose v2 and enough disk for the USDA
-nutrition dataset.
+Requirements: Docker Engine with Compose v2, and disk for the nutrition index.
+The `nutrition` job builds a local SQLite index of roughly 230 MB from the USDA
+export; allow time and space for it before starting.
 
 ```bash
 mkdir -p runtime datasets
@@ -69,7 +87,12 @@ docker compose run --rm nutrition
 docker compose up -d app
 ```
 
-Open <http://127.0.0.1:5002>. The first login opens the setup wizard.
+Open <http://127.0.0.1:5002>. The first login opens the setup wizard, which
+creates the household profile and nutrition targets.
+
+The reference Compose file binds to `127.0.0.1` by default. `KING_BIND_ADDRESS`
+can widen that, but only do so once an authenticated HTTPS boundary is in front
+of the service.
 
 The default nutrition job downloads USDA data only. Open Food Facts adds broad
 barcode coverage but downloads a very large global export; read the nutrition
@@ -123,10 +146,9 @@ isolated authenticated API smoke test.
 
 ## Security
 
-Keep the service private or behind an authenticated HTTPS reverse proxy. Set
-`FORCE_HTTPS=true` and an exact `TRUSTED_HOSTS` list in that deployment. Never
-commit `runtime/`, `datasets/`, a populated `app.env`, databases, backups, or
-personal screenshots.
+The deployment boundary is described above. Never commit `runtime/`,
+`datasets/`, a populated `app.env`, databases, backups, or personal
+screenshots.
 
 See [`SECURITY.md`](SECURITY.md) for the threat model and reporting process.
 
