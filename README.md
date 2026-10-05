@@ -1,5 +1,7 @@
 # King of Meal Prep
 
+Built by Matteo Mastore — [matteomastore.com](https://matteomastore.com)
+
 King of Meal Prep is a private, self-hosted meal planner that connects weekly
 planning, recipe yields, pantry stock, prepared portions, nutrition targets,
 and shopping into one workflow.
