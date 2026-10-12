@@ -473,11 +473,20 @@ source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
+`make check` also needs GNU `make` and Node.js 22 on the host; CI pins that
+Node version. The JavaScript gate is `node --check`, so a host without `node`
+can no longer be mistaken for a passing tree: `make js-check` exits `127`
+instead of silently reporting success.
+
 Run all local checks:
 
 ```bash
 make check
 ```
+
+Expected tail: `Ran 66 tests`, `OK`, `API smoke test passed`, exit `0`.
+`AI-HANDBOOK.md` records the two disposable container paths that validate a
+published snapshot.
 
 The check target includes:
 
