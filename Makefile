@@ -10,7 +10,7 @@ test:
 	$(PYTHON) -m unittest discover -s tests -v
 
 js-check:
-	@find static/js -type f -name '*.js' ! -path '*/vendor/*' -exec node --check {} \;
+	@find static/js -type f -name '*.js' ! -path '*/vendor/*' -print0 | xargs -0 -r -n1 node --check
 
 smoke:
 	$(PYTHON) scripts/smoke-api.py
