@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import logging
 import smtplib
+import ssl
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -64,7 +65,11 @@ def send_password_reset_email(
         )
         msg.attach(MIMEText(html, "html"))
         with smtplib.SMTP(smtp_host, smtp_port, timeout=20) as server:
-            server.starttls()
+            # smtplib defaults to ssl._create_stdlib_context(), which does
+            # NOT verify the peer certificate or the hostname. Pass an
+            # explicit verifying context so the app password cannot be
+            # harvested by an on-path attacker.
+            server.starttls(context=ssl.create_default_context())
             server.login(smtp_user, smtp_pass)
             server.sendmail(smtp_from, recipient, msg.as_string())
         log.info("password reset email sent to %s (ip=%s)", recipient, requester_ip)

@@ -288,9 +288,14 @@ def _csrf_check():
     sent = request.headers.get("X-CSRF-Token") or ""
     expected = session.get("csrf_token") or ""
     if not expected:
-        # Unauthenticated request to a protected endpoint — let the route's
-        # @require_auth produce the 401, don't shadow with a 403 here.
-        return None
+        # No stored token. If the caller is not authenticated, let the
+        # route's @require_auth produce the 401. If it IS authenticated
+        # (a session minted before the CSRF deploy) the check must not be
+        # skipped: fail closed and make the client call /api/me, which
+        # issues a token.
+        if not session.get("authenticated"):
+            return None
+        return jsonify({"error": "CSRF: no token for this session"}), 403
     # Constant-time compare to avoid timing oracles
     import hmac
     if not hmac.compare_digest(sent, expected):
@@ -642,9 +647,32 @@ def _validated_kv_value(key: str, value):
     if key in {
         "expiry_days_by_category", "macro_split_override", "training_delta_per_slot"
     }:
-        if value is not None and not isinstance(value, dict):
+        if value is None:
+            return None
+        if not isinstance(value, dict):
             raise ValidationError("must be an object or null", field="value")
-        return value
+        # Every consumer does arithmetic on these values (expiry uses
+        # timedelta(days=...), the planner scales macros), so a string or a
+        # huge float here is an unhandled TypeError/OverflowError on an
+        # unrelated request later. Validate at the gate instead.
+        if len(value) > 50:
+            raise ValidationError("must have at most 50 keys", field="value")
+        parsed: dict = {}
+        for name in sorted(value):
+            label = text(
+                name, f"value.{name}", required=True, max_length=60
+            )
+            if key == "expiry_days_by_category":
+                parsed[label] = integer(
+                    value[name], f"value.{name}", required=True,
+                    minimum=0, maximum=3650,
+                )
+            else:
+                parsed[label] = finite_number(
+                    value[name], f"value.{name}", required=True,
+                    minimum=-10_000, maximum=10_000,
+                )
+        return parsed
     raise ValidationError("setting is not editable")
 
 

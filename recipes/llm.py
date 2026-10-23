@@ -106,10 +106,20 @@ def parse_url(url: str) -> Optional[ScrapedRecipe]:
     if not name or not (ingredients or steps):
         return None
 
+    # d comes from Gemini, which was fed an attacker-controlled page; a
+    # reply of "4-6" would make int() raise ValueError and surface as a 500
+    # instead of the documented "could not parse this URL" 422.
+    try:
+        servings = int(float(d.get("servings") or 1))
+    except (TypeError, ValueError):
+        servings = 1
+    if servings < 1:
+        servings = 1
+
     out: ScrapedRecipe = {
         "source_url": url,
         "name": name,
-        "servings": int(d.get("servings") or 1),
+        "servings": servings,
         "total_time_min": d.get("total_time_min"),
         "active_time_min": d.get("active_time_min"),
         "ingredients": [str(x).strip() for x in ingredients if str(x).strip()],

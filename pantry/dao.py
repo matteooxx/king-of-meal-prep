@@ -229,8 +229,25 @@ def add(*, ingredient_key: str, display_name: str, quantity: float, unit: str,
 
 def update(pid: int, *, quantity=_UNSET, unit=_UNSET, expires_on=_UNSET,
            display_name=_UNSET, ingredient_key=_UNSET, portions=_UNSET) -> bool:
-    row = db._conn().execute(
-        "SELECT * FROM pantry_items WHERE id = ?", (pid,)
+    with db.tx() as connection:
+        return _update_locked(
+            connection, pid,
+            quantity=quantity, unit=unit, expires_on=expires_on,
+            display_name=display_name, ingredient_key=ingredient_key,
+            portions=portions,
+        )
+
+
+def _update_locked(connection, pid: int, *, quantity, unit, expires_on,
+                   display_name, ingredient_key, portions) -> bool:
+    # Only active rows may be edited. remove() soft-deletes by setting
+    # exhausted_at and leaves quantity intact, so without this filter a
+    # PATCH that only renames the item recomputes a positive canonical
+    # quantity and the CASE below clears exhausted_at, silently restocking
+    # an item the user already consumed.
+    row = connection.execute(
+        "SELECT * FROM pantry_items WHERE id = ? AND exhausted_at IS NULL",
+        (pid,),
     ).fetchone()
     if not row:
         return False
@@ -287,7 +304,7 @@ def update(pid: int, *, quantity=_UNSET, unit=_UNSET, expires_on=_UNSET,
         if portions is _UNSET
         else _portion_size(canonical_quantity, portions)
     )
-    db._conn().execute(
+    connection.execute(
         "UPDATE pantry_items SET ingredient_key = ?, display_name = ?, quantity = ?, "
         "unit = ?, expires_on = ?, canonical_quantity = ?, canonical_unit = ?, "
         "dimension = ?, portion_size_canonical = ?, "
