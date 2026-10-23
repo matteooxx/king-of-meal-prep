@@ -47,6 +47,9 @@
   --bg-elev-2:   #1a1a1a;
   --hairline:     rgba(232, 230, 224, 0.12);
   --hairline-strong: rgba(232, 230, 224, 0.22);
+  /* Boundary of an interactive control: WCAG 1.4.11 requires 3:1 against
+   * the adjacent colour. --hairline is decorative only. */
+  --field-border: #6d6b66;
 
   /* Text */
   --text:        #e8e6e0;
@@ -143,6 +146,21 @@ select:focus-visible,
 
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* WCAG 2.4.1 Bypass Blocks: seven nav links precede <main> on every page. */
+.skip-link {
+  position: absolute;
+  left: var(--sp-3);
+  top: var(--sp-3);
+  z-index: 100;
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--bg-elev-1);
+  color: var(--text);
+  border: 1px solid var(--accent);
+  transform: translateY(-200%);
+}
+.skip-link:focus-visible { transform: translateY(0); }
+.app-main:focus { outline: none; }
 
 .num { font-family: var(--ff-mono); font-variant-numeric: tabular-nums; }
 
@@ -652,8 +670,10 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   background: var(--bg);
   color: var(--text);
   /* Dotted borders match the field-journal "hairlines, not boxes" rule —
-   * solid borders were a recsbot Aurora regression that the audit flagged. */
-  border: 1px dotted var(--hairline);
+   * solid borders were a recsbot Aurora regression that the audit flagged.
+   * WCAG 1.4.11 needs 3:1 for a control boundary, and --hairline is only
+   * ~1.3:1 against the field's own background, so use --field-border. */
+  border: 1px dotted var(--field-border);
   padding: var(--sp-2) var(--sp-3);
   font: inherit;
   outline: none;
@@ -970,7 +990,7 @@ textarea {
   width: 100%;
   background: var(--bg);
   color: var(--text);
-  border: 1px solid var(--hairline);
+  border: 1px solid var(--field-border);
   padding: var(--sp-2) var(--sp-3);
   font: inherit;
   outline: none;
@@ -1589,14 +1609,20 @@ textarea:focus { border-color: var(--accent); }
   --bg-elev-2: #e9ede7;
   --hairline: rgba(25, 32, 24, 0.1);
   --hairline-strong: rgba(25, 32, 24, 0.2);
+  --field-border: #8d938b;
   --text: #192018;
   --text-dim: #566052;
-  --text-muted: #7b8477;
+  /* WCAG 1.4.3: #7b8477 on --bg #f4f6f2 was 3.57:1 (needs 4.5:1). */
+  --text-muted: #646d60;
   --accent: #667513;
   --accent-soft: rgba(102, 117, 19, 0.1);
-  --accent-ring: rgba(102, 117, 19, 0.38);
+  /* WCAG 2.4.7 / 1.4.11: the 0.38-alpha ring composited to 1.66:1 on the
+   * light background, so the keyboard focus indicator was invisible.
+   * The solid accent is 4.69:1. */
+  --accent-ring: #667513;
   --accent-press: #53600e;
-  --warn: #a95f14;
+  /* WCAG 1.4.3: #a95f14 on --bg was 4.46:1, just under 4.5:1. */
+  --warn: #9c5712;
   --urgent: #b8453c;
   --ok: #347448;
   --macro-kcal: #74821b;

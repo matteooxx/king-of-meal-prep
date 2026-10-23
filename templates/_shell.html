@@ -23,6 +23,7 @@
 </script>
 </head>
 <body class="{% block body_class %}{% endblock %}">
+<a class="skip-link" href="#main">Skip to main content</a>
 <div class="app-layout">
   <nav class="bottom-nav" aria-label="Primary navigation">
     <a class="nav-brand desktop-only" href="/today" aria-label="King home">
@@ -66,7 +67,7 @@
     </div>
   </nav>
 
-  <main class="app-main">
+  <main class="app-main" id="main" tabindex="-1">
     {% block content %}{% endblock %}
   </main>
 

@@ -88,7 +88,12 @@
       : choice === "dark";
     document.documentElement.dataset.theme = dark ? "dark" : "light";
     document.querySelectorAll("[data-theme-choice]").forEach((button) => {
-      button.classList.toggle("active", button.dataset.themeChoice === choice);
+      const selected = button.dataset.themeChoice === choice;
+      button.classList.toggle("active", selected);
+      // WCAG 4.1.2: the .active class is presentation only. The cook-mode
+      // and feedback-preference segmented controls already set aria-pressed
+      // (cook.js, feedback.js); this one was missed.
+      button.setAttribute("aria-pressed", String(selected));
     });
   }
 

@@ -18,23 +18,34 @@
   <div class="auth-error" id="loginError" role="alert"></div>
   <div class="auth-info"  id="loginInfo"  role="status"></div>
 
-  <div class="auth-field">
-    <label class="auth-label" for="username">Username</label>
-    <input class="auth-input" type="text" id="username" autocomplete="username" autofocus>
-  </div>
-  <div class="auth-field">
-    <label class="auth-label" for="password">Password</label>
-    <input class="auth-input" type="password" id="password" autocomplete="current-password">
-  </div>
+  <form id="loginForm" novalidate>
+    <div class="auth-field">
+      <label class="auth-label" for="username">Username</label>
+      <input class="auth-input" type="text" id="username" name="username" autocomplete="username" autofocus>
+    </div>
+    <div class="auth-field">
+      <label class="auth-label" for="password">Password</label>
+      <input class="auth-input" type="password" id="password" name="password" autocomplete="current-password">
+    </div>
 
-  <button class="auth-btn" id="loginBtn" type="button" onclick="doLogin()">Sign in</button>
-  <button class="auth-link" id="forgotBtn" type="button" onclick="doForgot()">Forgot password</button>
+    <button class="auth-btn" id="loginBtn" type="submit">Sign in</button>
+  </form>
+  <button class="auth-link" id="forgotBtn" type="button">Forgot password</button>
 
   <footer class="auth-footer">Single admin · tailnet only</footer>
 </main>
 <script>
-document.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+// A real form submit handler replaces the old document-level keydown hook.
+// That hook fired doLogin() for Enter anywhere on the page, so activating
+// "Forgot password" with the keyboard also attempted a login, and holding
+// Enter fired repeated /api/login calls straight into the 10/min limiter.
+document.getElementById("loginForm").addEventListener("submit", e => {
+  e.preventDefault();
+  doLogin();
+});
+document.getElementById("forgotBtn").addEventListener("click", doForgot);
 function doLogin() {
+  if (document.getElementById("loginBtn").disabled) return;
   const u = document.getElementById("username").value.trim();
   const p = document.getElementById("password").value;
   const btn = document.getElementById("loginBtn");
