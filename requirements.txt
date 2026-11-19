@@ -3,7 +3,7 @@ Flask-Limiter==4.1.1
 gunicorn==26.2.0
 bcrypt==5.0.0
 httpx==0.28.1
-recipe-scrapers==15.13.0
+recipe-scrapers==15.14.0
 beautifulsoup4==4.15.0
 lxml==6.1.3
 lxml_html_clean==0.4.5
